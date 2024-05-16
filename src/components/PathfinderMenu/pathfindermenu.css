@@ -1,0 +1,40 @@
+.container {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+}
+
+.container-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+/* ---------- MENU CLASSES ---------- */
+
+.menu {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 5rem;
+	gap: 2rem;
+}
+
+.sort {
+	cursor: pointer;
+	transition: 0.2s;
+}
+
+.sort:hover {
+	color: var(--primary);
+	transition: 0.2s;
+}
+
+.selected {
+	border: 2px solid var(--primary);
+	padding: 0.5rem 1rem;
+	border-radius: 1rem;
+}
