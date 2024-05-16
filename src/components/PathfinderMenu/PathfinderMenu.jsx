@@ -71,9 +71,9 @@ function PathfinderMenu() {
 					</div>
 					<select value={selectedAlgorithm} onChange={handleAlgorithmChange}>
 						<option value={0}>Dijkstra&apos;s Algorithm</option>
-						<option value={1}>A* Search Algorithm</option>
+						{/* <option value={1}>A* Search Algorithm</option>
 						<option value={2}>Breadth-First Search (BFS)</option>
-						<option value={3}>Depth-First Search (DFS)</option>
+						<option value={3}>Depth-First Search (DFS)</option> */}
 					</select>
 				</div>
 				<div className="divider"></div>

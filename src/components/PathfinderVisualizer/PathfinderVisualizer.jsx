@@ -86,6 +86,7 @@ function PathfinderVisualizer() {
 					curr = previous[curr[1]][curr[0]];
 				}
 				setPath(path);
+				setIsFound(true);
 				return path;
 			}
 
@@ -107,6 +108,7 @@ function PathfinderVisualizer() {
 				}
 			}
 		}
+		setIsFound(false);
 	};
 
 	const astar = async () => {
@@ -122,12 +124,11 @@ function PathfinderVisualizer() {
 	};
 
 	const cleanUpSort = () => {
-		setIsFound(true);
 		setPathfindingInProgress(false);
 	};
 
 	const handleGridClick = (x, y) => {
-		if (isFound || pathfindingInProgress) {
+		if (pathfindingInProgress || searchedPath.length > 0) {
 			return null;
 		} else if (x == startingPosition[0] && y == startingPosition[1]) {
 			setStartSelected(true);
@@ -186,8 +187,10 @@ function PathfinderVisualizer() {
 	const topMessage = () => {
 		if (pathfindingInProgress) return <div className="top-message">Pacman is searching. Please wait...</div>;
 		else if (isFound) return <div className="top-message">Ghost has been found! Clear the board and try again</div>;
-		else if (walls && !pathfindingInProgress && !isFound)
+		else if (searchedPath.length == 0 && !pathfindingInProgress)
 			return <div className="top-message">Click on any square to add or remove wall or click on characters to move them</div>;
+		else if (searchedPath.length > 0 && !pathfindingInProgress && !isFound)
+			return <div className="top-message">Ghost has not been found :( Clear the board and try again</div>;
 	};
 
 	const gridClass = (x, y) => {
