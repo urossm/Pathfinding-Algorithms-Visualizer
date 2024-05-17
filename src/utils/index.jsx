@@ -45,25 +45,33 @@ export const detectCorners = (x, y, walls) => {
 
 export class PriorityQueue {
 	constructor() {
-		this.queue = [];
+		this.elements = [];
 	}
 
-	enqueue(node, priority) {
-		this.queue.push({ node, priority });
-		this.queue.sort((a, b) => a.priority - b.priority);
+	enqueue(item, priority) {
+		this.elements.push({ item, priority });
+		this.elements.sort((a, b) => a.priority - b.priority);
 	}
 
 	dequeue() {
-		return this.queue.shift().node;
+		return this.elements.shift().item;
 	}
 
 	isEmpty() {
-		return this.queue.length === 0;
+		return this.elements.length === 0;
+	}
+
+	contains(item) {
+		return this.elements.some((element) => element.item[0] === item[0] && element.item[1] === item[1]);
 	}
 }
 
 export const calcSpeed = (speed) => {
 	return 100 - speed;
+};
+
+export const heuristic = (a, b) => {
+	return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
 };
 
 export const directions = [

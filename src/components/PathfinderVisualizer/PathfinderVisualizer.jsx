@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { BiSolidGhost } from "react-icons/bi";
 import { usePathfindingContext } from "../../context";
-import { PriorityQueue, calcSpeed, detectCorners, directions, pause } from "../../utils";
+import { PriorityQueue, calcSpeed, detectCorners, directions, heuristic, pause } from "../../utils";
 import "./pathfindervisualizer.css";
 
 function PathfinderVisualizer() {
@@ -112,15 +112,124 @@ function PathfinderVisualizer() {
 	};
 
 	const astar = async () => {
-		// TODO: implement A* algorithm here
+		const openSet = new PriorityQueue();
+		const gScore = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
+		const fScore = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
+		const previous = Array.from({ length: rows }, () => Array(cols).fill(null));
+
+		gScore[startingPosition[1]][startingPosition[0]] = 0;
+		fScore[startingPosition[1]][startingPosition[0]] = heuristic(startingPosition, goalPosition);
+		openSet.enqueue(startingPosition, fScore[startingPosition[1]][startingPosition[0]]);
+
+		const wallsSet = new Set(walls.map(([x, y]) => `${x},${y}`));
+
+		while (!openSet.isEmpty()) {
+			const [x, y] = openSet.dequeue();
+
+			if (x === goalPosition[0] && y === goalPosition[1]) {
+				const path = [];
+				let curr = goalPosition;
+				while (curr) {
+					path.unshift(curr);
+					curr = previous[curr[1]][curr[0]];
+				}
+				setPath(path);
+				setIsFound(true);
+				return path;
+			}
+
+			for (const [dx, dy] of directions) {
+				const nx = x + dx;
+				const ny = y + dy;
+
+				if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !wallsSet.has(`${nx},${ny}`)) {
+					const tentativeGScore = gScore[y][x] + 1;
+					if (tentativeGScore < gScore[ny][nx]) {
+						gScore[ny][nx] = tentativeGScore;
+						fScore[ny][nx] = tentativeGScore + heuristic([nx, ny], goalPosition);
+						previous[ny][nx] = [x, y];
+
+						if (!openSet.contains([nx, ny])) {
+							openSet.enqueue([nx, ny], fScore[ny][nx]);
+						}
+
+						setCurrentIndices([nx, ny]);
+						setSearchedPath((prevPath) => [...prevPath, [nx, ny]]);
+						await pause(calcSpeed(speed));
+					}
+				}
+			}
+		}
+
+		setIsFound(false);
 	};
 
 	const bfs = async () => {
-		// TODO: implement bfs algorithm here
+		const queue = [[startingPosition]];
+		const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+		const wallsSet = new Set(walls.map(([x, y]) => `${x},${y}`));
+
+		visited[startingPosition[1]][startingPosition[0]] = true;
+
+		while (queue.length > 0) {
+			const path = queue.shift();
+			const [x, y] = path[path.length - 1];
+
+			setCurrentIndices([x, y]);
+			setSearchedPath((prevPath) => [...prevPath, [x, y]]);
+			await pause(calcSpeed(speed));
+
+			if (x === goalPosition[0] && y === goalPosition[1]) {
+				setPath(path);
+				setIsFound(true);
+				return path;
+			}
+
+			for (const [dx, dy] of directions) {
+				const nx = x + dx;
+				const ny = y + dy;
+
+				if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !visited[ny][nx] && !wallsSet.has(`${nx},${ny}`)) {
+					visited[ny][nx] = true;
+					queue.push([...path, [nx, ny]]);
+				}
+			}
+		}
+		setIsFound(false);
 	};
 
 	const dfs = async () => {
-		// TODO: implement dfs algorithm here
+		const stack = [[startingPosition]];
+		const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+		const wallsSet = new Set(walls.map(([x, y]) => `${x},${y}`));
+
+		visited[startingPosition[1]][startingPosition[0]] = true;
+
+		while (stack.length > 0) {
+			const path = stack.pop();
+			const [x, y] = path[path.length - 1];
+
+			setCurrentIndices([x, y]);
+			setSearchedPath((prevPath) => [...prevPath, [x, y]]);
+			await pause(calcSpeed(speed));
+
+			if (x === goalPosition[0] && y === goalPosition[1]) {
+				setPath(path);
+				setIsFound(true);
+				return path;
+			}
+
+			for (const [dx, dy] of directions) {
+				const nx = x + dx;
+				const ny = y + dy;
+
+				if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !visited[ny][nx] && !wallsSet.has(`${nx},${ny}`)) {
+					visited[ny][nx] = true;
+					stack.push([...path, [nx, ny]]);
+				}
+			}
+		}
+		setIsFound(false);
 	};
 
 	const cleanUpSort = () => {
